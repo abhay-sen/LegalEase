@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "878260275499",
+    "project_id": "legalease-e4271",
+    "storage_bucket": "legalease-e4271.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878260275499:android:92503439d645abcc661d6e",
+        "android_client_info": {
+          "package_name": "com.legalease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDndk_f_tPMHs_l3gXFUgiDJmXrH5FaoMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
