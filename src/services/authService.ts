@@ -8,3 +8,4 @@ export const configureGoogleSignIn = () => {
     offlineAccess: true,// from Firebase Console
   });
 };
+//add to gitignore
