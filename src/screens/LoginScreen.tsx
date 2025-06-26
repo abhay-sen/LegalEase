@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Button, StyleSheet, Text, Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { getAuth, signInWithCredential, GoogleAuthProvider, signOut } from '@react-native-firebase/auth';
+import {
+  getAuth,
+  signInWithCredential,
+  GoogleAuthProvider,
+  signOut,
+} from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
 
 const LoginScreen: React.FC = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const unsubscribe = getAuth().onAuthStateChanged(u => {
+      setUser(u);
       if (u) {
         console.log('👤 User signed in:', u.displayName);
         setUser(u);
@@ -23,10 +30,16 @@ const LoginScreen: React.FC = () => {
     });
     return unsubscribe;
   }, []);
-
+  useEffect(() => {
+    if (user) {
+      navigation.replace('Home');
+    }
+  }, [user, navigation]);
   const signInWithGoogle = async () => {
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
 
       const response = await GoogleSignin.signIn();
       const { idToken } = response.data;
@@ -45,8 +58,8 @@ const LoginScreen: React.FC = () => {
   const signOutFromGoogle = async () => {
     try {
       await GoogleSignin.revokeAccess(); // revoke Google token
-      await GoogleSignin.signOut();      // sign out from Google
-      await getAuth().signOut();         // sign out from Firebase
+      await GoogleSignin.signOut(); // sign out from Google
+      await getAuth().signOut(); // sign out from Firebase
       Alert.alert('Signed out', 'You have been signed out successfully.');
     } catch (error: any) {
       console.error('❌ Sign-Out Error:', error);
@@ -56,21 +69,26 @@ const LoginScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome</Text>
-      {user ? (
+      <Text style={styles.title}>👋 Welcome to LegalEase</Text>
+      <Button title="Sign In with Google" onPress={signInWithGoogle} />
+      {user && (
         <>
-          <Text style={styles.userText}>Signed in as: {user.displayName}</Text>
+          <Text style={styles.userText}>👤 {user.displayName}</Text>
+          <Text style={styles.userText}>📧 {user.email}</Text>
           <Button title="Sign Out" onPress={signOutFromGoogle} />
         </>
-      ) : (
-        <Button title="Sign in with Google" onPress={signInWithGoogle} />
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
   title: { fontSize: 24, marginBottom: 16 },
   userText: { fontSize: 16, marginVertical: 10 },
 });
