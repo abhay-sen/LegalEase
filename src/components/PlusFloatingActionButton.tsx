@@ -4,19 +4,36 @@ import { FAB, Portal, Provider } from 'react-native-paper';
 import { pick } from '@react-native-documents/picker';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ConvertImagesToPDF from '../services/ConvertImagesToPdf'; // Ensure this service is implemented
+import { useUserStore } from './../store/useUserStore'; // Ensure this store is implemented
+import { supabase } from './../services/supabase'; // Ensure this service is implemented
+import {uploadToSupabase} from './../services/uploadToSupabase'; // Ensure this service is implemented
+import uploadFileToSupabase from './../services/uploadFileToSupabase'; // Ensure this service is implemented
 const PlusFloatingActionButton: React.FC = () => {
+  const user = useUserStore(state => state.user);
   const handlePickPDF = async () => {
     try {
-      const result = await pick({
+      const file = await pick({
         type: ['application/pdf'],
         allowMultiSelection: false,
       });
 
-      console.log('📄 Picked PDF:', result[0]);
-      // TODO: Handle PDF file upload/storage
-    } catch (err: any) {
-      if (err?.message !== 'USER_CANCELED') {
-        console.error('❌ PDF Picker Error:', err);
+      if (!file?.[0]?.uri || !user?.uid) {
+        console.log('No file selected or user not logged in');
+        return;
+      }
+
+      const publicUrl = await uploadToSupabase(
+        file[0].uri,
+        file[0].name,
+        user.uid,
+      );
+
+      console.log('✅ Uploaded PDF URL:', publicUrl);
+      // Use `publicUrl` in your app (e.g., save to database)
+    } catch (error) {
+      if (error?.message !== 'USER_CANCELED') {
+        console.error('❌ PDF Upload Error:', error);
+        // Optional: Show error toast to user
       }
     }
   };
@@ -24,7 +41,7 @@ const PlusFloatingActionButton: React.FC = () => {
   const handleDocumentScan = async () => {
     try {
       const result = await DocumentScanner.scanDocument({
-        maxNumDocuments: 10,
+        maxNumDocuments: 20,
       });
 
       if (result?.scannedImages?.length > 0) {
@@ -35,12 +52,15 @@ const PlusFloatingActionButton: React.FC = () => {
           );
           console.log('✅ Converted PDF Path:', convertedPdfPath);
 
-          // Upload to Supabase here
+          // Upload to Supabase
+          const publicUrl = await uploadFileToSupabase(
+            convertedPdfPath,
+            user?.uid,
+          );
+          console.log('📤 Supabase PDF URL:', publicUrl);
         } catch (pdfErr) {
           console.error('❌ PDF Conversion Error:', pdfErr);
         }
-        
-        // TODO: Convert scannedImages to PDF
       }
     } catch (err: any) {
       if (err?.message !== 'USER_CANCELED') {
@@ -48,7 +68,6 @@ const PlusFloatingActionButton: React.FC = () => {
       }
     }
   };
-
   const handleFABPress = () => {
     Alert.alert(
       'Choose an Option',

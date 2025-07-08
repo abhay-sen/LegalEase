@@ -10,17 +10,20 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
+import { useUserStore } from "./../store/useUserStore";
 
 const LoginScreen: React.FC = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const [user, setUser] = useState<any>(null);
+  const user = useUserStore(state => state.user);
+  const setUser = useUserStore(state => state.setUser);
 
   useEffect(() => {
     const unsubscribe = getAuth().onAuthStateChanged(u => {
       setUser(u);
       if (u) {
+        console.log('👤 User state changed:', u);
         console.log('👤 User signed in:', u.displayName);
         setUser(u);
       } else {
