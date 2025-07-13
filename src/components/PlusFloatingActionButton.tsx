@@ -5,9 +5,10 @@ import { pick } from '@react-native-documents/picker';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ConvertImagesToPDF from '../services/ConvertImagesToPdf'; // Ensure this service is implemented
 import { useUserStore } from './../store/useUserStore'; // Ensure this store is implemented
-import { supabase } from './../services/supabase'; // Ensure this service is implemented
+ // Ensure this service is implemented
 import {uploadToSupabase} from './../services/uploadToSupabase'; // Ensure this service is implemented
 import uploadFileToSupabase from './../services/uploadFileToSupabase'; // Ensure this service is implemented
+import { getLegalReport, inserReportToTable } from '../api/api';
 const PlusFloatingActionButton: React.FC = () => {
   const user = useUserStore(state => state.user);
   const handlePickPDF = async () => {
@@ -29,6 +30,10 @@ const PlusFloatingActionButton: React.FC = () => {
       );
 
       console.log('✅ Uploaded PDF URL:', publicUrl);
+      const str=await getLegalReport(publicUrl);
+      console.log(str);
+      const data=await inserReportToTable(publicUrl,str,user?.uid);
+      console.log(data);
       // Use `publicUrl` in your app (e.g., save to database)
     } catch (error) {
       if (error?.message !== 'USER_CANCELED') {
@@ -58,6 +63,10 @@ const PlusFloatingActionButton: React.FC = () => {
             user?.uid,
           );
           console.log('📤 Supabase PDF URL:', publicUrl);
+          const str = await getLegalReport(publicUrl);
+          console.log(str);
+          const data = await inserReportToTable(publicUrl, str, user?.uid);
+          console.log(data);
         } catch (pdfErr) {
           console.error('❌ PDF Conversion Error:', pdfErr);
         }

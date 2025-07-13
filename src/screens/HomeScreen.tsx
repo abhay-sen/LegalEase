@@ -3,17 +3,34 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import LogoutButton from '../components/LogoutButton';
 import PlusFloatingActionButton from '../components/PlusFloatingActionButton';
-
+import { getUserReports } from '../api/api';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../App';
+import { useNavigation } from '@react-navigation/native';
 const HomeScreen = () => {
-  const [user, setUser] = useState<any>(null);
-
+  const user = auth().currentUser;
+  const [reports, setReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   useEffect(() => {
-    const currentUser = auth().currentUser;
-    if (currentUser) {
-      setUser(currentUser);
-    }
-  }, []);
+    if(!user) return;
+    const loadReports = async () => {
+      setLoading(true);
+      const data = await getUserReports();
+      if (data) {
+        setReports(data);
+      }
+      setLoading(false);
+    };
 
+    loadReports();
+  }, [user]);
+  useEffect(() => {
+    if (user == null) {
+      navigation.replace('Login');
+    }
+  }, [user, navigation]);
   return (
     <View style={styles.screen}>
       <View style={styles.container}>
