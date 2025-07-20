@@ -1,7 +1,7 @@
 import { supabase } from '../services/supabase';
 import auth from '@react-native-firebase/auth';
 // import { useUserStore } from './../store/useUserStore';
-const BASE_URL = 'https://legalease-backend-p39s.onrender.com';
+const BASE_URL = 'https://legalease-backend-1.onrender.com/';
 
 export const getLegalReport = async (pdfUrl: string) => {
   const res = await fetch(`${BASE_URL}/process-pdf-url/`, {
